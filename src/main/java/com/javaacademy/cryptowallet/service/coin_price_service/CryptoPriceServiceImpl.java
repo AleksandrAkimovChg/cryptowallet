@@ -1,12 +1,13 @@
 package com.javaacademy.cryptowallet.service.coin_price_service;
 
 import com.javaacademy.cryptowallet.http_client.OkClient;
-import com.javaacademy.cryptowallet.model.CryptoCoin;
+import com.javaacademy.cryptowallet.model.account.CryptoCoin;
 import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -32,22 +33,22 @@ public class CryptoPriceServiceImpl implements CryptoPriceService {
 
     @Override
     public BigDecimal getCoinPriceInUsd(CryptoCoin coin) {
-        String responseBody = sendRequest(coin);
+        String responseBody = getResponseBodyAndSendRequest(coin);
         return JsonPath.parse(responseBody)
                 .read(JsonPath.compile(JSON_PATH_TEMPLATE_FOR_USD.formatted(coin.getName())), BigDecimal.class);
     }
 
-    private String sendRequest(CryptoCoin coin) {
+    private String getResponseBodyAndSendRequest(CryptoCoin coin) {
         log.info("запрос котировки в долларах по криптовалютe: {}", coin);
         String urlPath = PATH_TEMPLATE_FOR_USD_COIN_COURSE.formatted(api, coin.getName());
         Request request = client.getGetRequest(urlPath, header, token);
+        Response response = client.sendRequest(request);
         String result = "";
         try {
-            Response response = client.sendRequest(request);
-            if (response == null || !response.isSuccessful() || response.body() == null) {
-                throw new RuntimeException("Response неуспешен или пустой");
+            ResponseBody responseBody = client.getResponseBody(response);
+            if (responseBody != null) {
+                result = responseBody.string();
             }
-            result = client.getResponseBody(response);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }

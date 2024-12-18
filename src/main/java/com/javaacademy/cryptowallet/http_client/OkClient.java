@@ -1,8 +1,6 @@
 package com.javaacademy.cryptowallet.http_client;
 
-import com.javaacademy.cryptowallet.model.CryptoCoin;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -28,11 +26,20 @@ public class OkClient {
         return new Request.Builder().addHeader(headerKey, headerValue).get().url(urlPath).build();
     }
 
-    public Response sendRequest(Request request) throws IOException {
-        return client.newCall(request).execute();
+    public Response sendRequest(Request request) throws RuntimeException {
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        if (response == null || !response.isSuccessful() || response.body() == null) {
+            throw new RuntimeException("Response неуспешен или пустой");
+        }
+        return response;
     }
 
-    public String getResponseBody(Response response) throws IOException {
-        return response.body().string();
+    public ResponseBody getResponseBody(Response response) {
+        return response.body();
     }
 }

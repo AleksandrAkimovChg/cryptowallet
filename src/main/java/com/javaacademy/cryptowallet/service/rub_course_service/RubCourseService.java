@@ -1,8 +1,8 @@
-package com.javaacademy.cryptowallet.service.course_service;
+package com.javaacademy.cryptowallet.service.rub_course_service;
 
 import java.math.BigDecimal;
 
-public interface CourseService {
+public interface RubCourseService {
 
     BigDecimal convertUsdToRub(BigDecimal amountUsd);
 

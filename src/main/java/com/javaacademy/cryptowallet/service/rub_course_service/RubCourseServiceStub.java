@@ -1,4 +1,4 @@
-package com.javaacademy.cryptowallet.service.course_service;
+package com.javaacademy.cryptowallet.service.rub_course_service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -7,10 +7,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Profile("local")
-public class CourseServiceStub implements CourseService {
+public class RubCourseServiceStub implements RubCourseService {
     private static final int SCALE_FOR_DIVIDE = 5;
     private static final int SCALE_FOR_MULTIPLY = 2;
-    @Value("${app.stub.course-usd-rub}")
+    @Value("${app.stub.course.usd-rub}")
     private BigDecimal rateOneDollarToRouble;
 
     @Override

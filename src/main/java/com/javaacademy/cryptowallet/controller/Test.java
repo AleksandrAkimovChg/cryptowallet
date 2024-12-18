@@ -1,8 +1,8 @@
 package com.javaacademy.cryptowallet.controller;
 
-import com.javaacademy.cryptowallet.model.CryptoCoin;
-import com.javaacademy.cryptowallet.service.course_service.CourseService;
+import com.javaacademy.cryptowallet.model.account.CryptoCoin;
 import com.javaacademy.cryptowallet.service.coin_price_service.CryptoPriceServiceImpl;
+import com.javaacademy.cryptowallet.service.rub_course_service.RubCourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RequestMapping("/test")
 public class Test {
-    private final CourseService courseService;
+    private final RubCourseService courseService;
     private final CryptoPriceServiceImpl cryptoPriceServiceImpl;
 
 

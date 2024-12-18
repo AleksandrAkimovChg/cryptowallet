@@ -1,6 +1,6 @@
 package com.javaacademy.cryptowallet.service.coin_price_service;
 
-import com.javaacademy.cryptowallet.model.CryptoCoin;
+import com.javaacademy.cryptowallet.model.account.CryptoCoin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 @Profile("local")
 public class CryptoPriceServiceStub implements CryptoPriceService {
-    @Value("${app.stub.course-coin}")
+    @Value("${app.stub.course.coin-usd}")
     private BigDecimal currencyStub;
 
     @Override
