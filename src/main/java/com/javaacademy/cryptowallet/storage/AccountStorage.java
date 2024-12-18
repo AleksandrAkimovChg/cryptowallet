@@ -1,6 +1,6 @@
 package com.javaacademy.cryptowallet.storage;
 
-import com.javaacademy.cryptowallet.model.Account;
+import com.javaacademy.cryptowallet.model.account.Account;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

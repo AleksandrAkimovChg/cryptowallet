@@ -1,9 +1,9 @@
 package com.javaacademy.cryptowallet.controller;
 
-import com.javaacademy.cryptowallet.dto.CreateAccountDtoReq;
-import com.javaacademy.cryptowallet.model.Account;
-import com.javaacademy.cryptowallet.model.CryptoCoin;
-import com.javaacademy.cryptowallet.service.CryptoService;
+import com.javaacademy.cryptowallet.dto.AccountDtoRs;
+import com.javaacademy.cryptowallet.dto.CreateAccountDtoRq;
+import com.javaacademy.cryptowallet.model.account.CryptoCoin;
+import com.javaacademy.cryptowallet.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,24 +23,27 @@ import java.util.UUID;
 @Slf4j
 @RequestMapping("/cryptowallet")
 public class CryptoController {
-    private final CryptoService cryptoService;
+    private final AccountService cryptoService;
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public UUID createAccount(@RequestBody() CreateAccountDtoReq createAccountDtoReq) {
-        log.info("userDto input: {}", createAccountDtoReq);
-        CryptoCoin coin;
-        try {
-            coin = CryptoCoin.valueOf(createAccountDtoReq.getCryptoType());
-        } catch (Exception e) {
-            log.error("Передана не поддерживаемая криптовалюта", e);
-        }
-        return cryptoService.createCryptoWallet(createAccountDtoReq);
+    public UUID createAccount(@RequestBody() CreateAccountDtoRq createAccountDtoRq) {
+        log.info("userDto input: {}", createAccountDtoRq);
+        checkCryptoCoin(createAccountDtoRq.getCryptoType());
+        return cryptoService.createCryptoWallet(createAccountDtoRq);
     }
 
     @GetMapping
-    public List<Account> getAccounts(@RequestParam String username) {
+    public List<AccountDtoRs> getAccounts(@RequestParam String username) {
         log.info("username input: {}", username);
         return cryptoService.findAllAccounts(username);
+    }
+
+    private void checkCryptoCoin(String cryptoType) {
+        try {
+            CryptoCoin.valueOf(cryptoType);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Передана не поддерживаемая криптовалюта: " + cryptoType);
+        }
     }
 }

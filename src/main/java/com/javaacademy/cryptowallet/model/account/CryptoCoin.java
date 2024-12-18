@@ -1,4 +1,4 @@
-package com.javaacademy.cryptowallet.model;
+package com.javaacademy.cryptowallet.model.account;
 
 import lombok.RequiredArgsConstructor;
 
