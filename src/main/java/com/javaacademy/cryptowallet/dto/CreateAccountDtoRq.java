@@ -1,16 +1,15 @@
 package com.javaacademy.cryptowallet.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NonNull;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDtoReq {
+public class CreateAccountDtoRq {
     @NonNull
-    private String login;
-    @NonNull
-    private String email;
-    @NonNull
-    private String password;
+    private final String username;
+    @JsonProperty("crypto_type")
+    private final String cryptoType;
 }

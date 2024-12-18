@@ -7,7 +7,7 @@ import lombok.NonNull;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResetPasswordDtoReq {
+public class ResetPasswordDtoRq {
     @NonNull
     private final String login;
     @JsonProperty("old_password")
