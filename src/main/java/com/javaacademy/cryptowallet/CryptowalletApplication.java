@@ -2,12 +2,15 @@ package com.javaacademy.cryptowallet;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class CryptowalletApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CryptowalletApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(CryptowalletApplication.class, args);
+
+        System.out.println(context);
     }
 
 }
