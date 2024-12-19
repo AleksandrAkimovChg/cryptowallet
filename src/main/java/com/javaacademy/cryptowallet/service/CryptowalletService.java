@@ -7,7 +7,6 @@ import com.javaacademy.cryptowallet.model.account.Account;
 import com.javaacademy.cryptowallet.model.account.CryptoCoin;
 import com.javaacademy.cryptowallet.model.user.User;
 import com.javaacademy.cryptowallet.repository.AccountRepository;
-import com.javaacademy.cryptowallet.repository.UserRepository;
 import com.javaacademy.cryptowallet.service.coin_price_service.CoinPriceService;
 import com.javaacademy.cryptowallet.service.course_service.ConvertCourseService;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +22,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CryptowalletService {
-    private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final CryptoMapper mapper;
     private final CoinPriceService coinPriceService;
     private final ConvertCourseService convertCourseService;
     private final UserService userService;
-
     private static final int SCALE_FOR_DIVIDE = 5;
     private static final String OPERATION_TEMPLATE = "Операция прошла успешно. Продано: %s %s.";
 

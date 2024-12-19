@@ -22,7 +22,7 @@ import java.util.Optional;
 public class ConvertCourseServiceImpl implements ConvertCourseService {
     private final OkClient client;
     private final CryptoParser cryptoParser;
-    @Value("${app.course.api:https://www.cbr-xml-daily.ru/latest.js}")
+    @Value("${app.course.api}")
     private String urlPath;
     private static final String JSON_PATH_TEMPLATE_FOR_USD = "$.rates.USD";
     private static final int SCALE_FOR_DIVIDE = 13;

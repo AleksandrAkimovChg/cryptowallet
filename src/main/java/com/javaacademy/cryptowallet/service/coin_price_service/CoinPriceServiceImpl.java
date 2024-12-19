@@ -22,7 +22,6 @@ import java.util.Optional;
 public class CoinPriceServiceImpl implements CoinPriceService {
     private final OkClient client;
     private final CryptoParser cryptoParser;
-
     @Value("${app.crypto.api}")
     private String api;
     @Value("${app.crypto.header}")
