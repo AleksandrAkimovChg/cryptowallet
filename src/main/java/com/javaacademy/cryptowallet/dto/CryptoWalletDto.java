@@ -2,15 +2,19 @@ package com.javaacademy.cryptowallet.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.javaacademy.cryptowallet.model.account.CryptoCoin;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.math.BigDecimal;
+import java.util.UUID;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateAccountDtoRq {
+public class CryptoWalletDto {
     @NonNull
-    private final String username;
-    @JsonProperty("crypto_type")
-    private final CryptoCoin cryptoType;
+    @JsonProperty("account_id")
+    private UUID uuid;
+    @NonNull
+    @JsonProperty("rubles_amount")
+    private BigDecimal amountRub;
 }

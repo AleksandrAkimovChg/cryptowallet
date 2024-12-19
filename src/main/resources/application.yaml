@@ -13,3 +13,8 @@ app:
     course:
       coin-usd: 10000
       usd-rub: 100
+
+logging:
+  level:
+    root: INFO
+    com.javaacademy.cryptowallet: DEBUG

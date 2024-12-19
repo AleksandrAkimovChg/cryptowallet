@@ -15,15 +15,15 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    private final UserRepository repository;
-    private final CryptoMapper mapper;
+    private final UserRepository userRepository;
+    private final CryptoMapper cryptoMapper;
 
     public void saveUser(UserDtoRq userDto) {
-        repository.saveUser(mapper.convertToUser(userDto));
+        userRepository.saveUser(cryptoMapper.convertToUser(userDto));
     }
 
-    private User getUserByLogin(String userLogin) {
-        return repository.getUser(userLogin).orElseThrow();
+    public User getUserByLogin(String userLogin) {
+        return userRepository.getUser(userLogin).orElseThrow(() -> new RuntimeException("Юзер не найден"));
     }
 
     public void changePassword(ResetPasswordDtoRq resetPasswordDto) {
