@@ -12,5 +12,5 @@ public class CreateAccountDtoRq {
     @NonNull
     private final String username;
     @JsonProperty("crypto_type")
-    private final CryptoCoinType cryptoType;
+    private final String cryptoType;
 }

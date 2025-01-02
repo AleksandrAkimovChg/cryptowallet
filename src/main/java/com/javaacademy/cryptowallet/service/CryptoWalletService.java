@@ -3,6 +3,7 @@ package com.javaacademy.cryptowallet.service;
 import com.javaacademy.cryptowallet.dto.AccountDtoRs;
 import com.javaacademy.cryptowallet.dto.CreateAccountDtoRq;
 import com.javaacademy.cryptowallet.exception.AccountNotFoundException;
+import com.javaacademy.cryptowallet.exception.CoinUnsupportedException;
 import com.javaacademy.cryptowallet.mapper.CryptoMapper;
 import com.javaacademy.cryptowallet.model.account.Account;
 import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
@@ -11,15 +12,18 @@ import com.javaacademy.cryptowallet.repository.AccountRepository;
 import com.javaacademy.cryptowallet.service.coin_price.CoinPriceService;
 import com.javaacademy.cryptowallet.service.course_rub.ConvertCourseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CryptoWalletService {
@@ -46,9 +50,19 @@ public class CryptoWalletService {
         return accountRepository.getAllAccountsByLogin(login);
     }
 
-    public UUID createCryptoWallet(CreateAccountDtoRq request) {
-        User user = userService.getUserByLogin(request.getUsername());
-        Account account = new Account(user.getLogin(), request.getCryptoType());
+    public CryptoCoinType checkCryptoCoinType(CreateAccountDtoRq createAccountDtoRq) {
+        try {
+            return CryptoCoinType.valueOf(createAccountDtoRq.getCryptoType());
+        } catch (Exception ex) {
+            log.info(ex.getMessage(), ex);
+            throw new CoinUnsupportedException("Передан неподдерживаемый тип валюты. Доступны:"
+                    + Arrays.toString(CryptoCoinType.values()));
+        }
+    }
+
+    public UUID createCryptoWallet(String login, CryptoCoinType cryptoCoinType ) {
+        User user = userService.getUserByLogin(login);
+        Account account = new Account(user.getLogin(), cryptoCoinType);
         account.setUuid(UUID.randomUUID());
         accountRepository.saveAccount(account);
         return account.getUuid();
