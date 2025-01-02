@@ -1,6 +1,6 @@
-package com.javaacademy.cryptowallet.service.coin_price_service;
+package com.javaacademy.cryptowallet.service.coin_price;
 
-import com.javaacademy.cryptowallet.model.account.CryptoCoin;
+import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -17,7 +17,7 @@ public class CoinPriceServiceStub implements CoinPriceService {
     private BigDecimal currencyStub;
 
     @Override
-    public Optional<BigDecimal> getCoinPriceInUsd(CryptoCoin coin) {
+    public Optional<BigDecimal> getCoinPriceInUsd(CryptoCoinType coin) {
         return Optional.ofNullable(currencyStub);
     }
 }

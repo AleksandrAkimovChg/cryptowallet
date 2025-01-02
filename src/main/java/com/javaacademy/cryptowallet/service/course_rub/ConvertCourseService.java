@@ -1,4 +1,4 @@
-package com.javaacademy.cryptowallet.service.course_service;
+package com.javaacademy.cryptowallet.service.course_rub;
 
 import java.math.BigDecimal;
 import java.util.Optional;

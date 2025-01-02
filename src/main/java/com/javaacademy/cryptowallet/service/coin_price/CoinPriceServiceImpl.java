@@ -1,8 +1,8 @@
-package com.javaacademy.cryptowallet.service.coin_price_service;
+package com.javaacademy.cryptowallet.service.coin_price;
 
 import com.javaacademy.cryptowallet.http_client.OkClient;
-import com.javaacademy.cryptowallet.model.account.CryptoCoin;
-import com.javaacademy.cryptowallet.parser.CryptoParser;
+import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
+import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
@@ -21,27 +21,28 @@ import java.util.Optional;
 @Profile("prod")
 public class CoinPriceServiceImpl implements CoinPriceService {
     private final OkClient client;
-    private final CryptoParser cryptoParser;
-    @Value("${app.crypto.api}")
+    @Value("${app.crypto.request.api}")
     private String api;
-    @Value("${app.crypto.header}")
+    @Value("${app.crypto.request.header}")
     private String header;
-    @Value("${app.crypto.token}")
+    @Value("${app.crypto.request.token}")
     private String token;
-    private static final String URL_PATH_TEMPLATE_FOR_USD_COIN_COURSE = "%s/simple/price?ids=%s&vs_currencies=usd";
-    private static final String JSON_PATH_TEMPLATE_FOR_USD = "$.%s.usd";
+    @Value("${app.crypto.request.path-template}")
+    private String urlPathTemplateForUsdCoinCourse;
+    @Value("${app.crypto.response.json-path-template}")
+    private String jsonPathTemplateForUsd;
 
     @Override
-    public Optional<BigDecimal> getCoinPriceInUsd(CryptoCoin coin) {
+    public Optional<BigDecimal> getCoinPriceInUsd(CryptoCoinType coin) {
         String responseBody = getResponseBodyAndSendRequest(coin).orElse(null);
         log.info("получение курса coin: {} - парсинг строки {}", coin, responseBody);
-        String template = JSON_PATH_TEMPLATE_FOR_USD.formatted(coin.getName());
-        return responseBody != null ? cryptoParser.parseValueByTemplate(responseBody, template) : Optional.empty();
+        String template = jsonPathTemplateForUsd.formatted(coin.getName());
+        return Optional.of(JsonPath.parse(responseBody).read(JsonPath.compile(template), BigDecimal.class));
     }
 
-    private Optional<String> getResponseBodyAndSendRequest(CryptoCoin coin) {
+    private Optional<String> getResponseBodyAndSendRequest(CryptoCoinType coin) {
         log.info("Запрос котировки в долларах по криптовалютe: {}", coin);
-        String urlPath = URL_PATH_TEMPLATE_FOR_USD_COIN_COURSE.formatted(api, coin.getName());
+        String urlPath = urlPathTemplateForUsdCoinCourse.formatted(api, coin.getName());
         Request request = client.getGetRequest(urlPath, header, token);
         try (Response response = client.sendRequest(request)) {
             return Optional.of(client.getResponseBody(response));

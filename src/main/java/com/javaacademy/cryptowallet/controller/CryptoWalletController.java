@@ -4,10 +4,10 @@ import com.javaacademy.cryptowallet.dto.AccountDtoRs;
 import com.javaacademy.cryptowallet.dto.CreateAccountDtoRq;
 import com.javaacademy.cryptowallet.dto.CryptoWalletDto;
 import com.javaacademy.cryptowallet.service.CryptoMessage;
-import com.javaacademy.cryptowallet.service.CryptowalletService;
+import com.javaacademy.cryptowallet.service.CryptoWalletService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,45 +23,42 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @RequestMapping("/cryptowallet")
-public class CryptowalletController {
-    private final CryptowalletService cryptoService;
+public class CryptoWalletController {
+    private final CryptoWalletService cryptoService;
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public UUID createAccount(@RequestBody CreateAccountDtoRq createAccountDtoRq) {
-        log.info("userDto input: {}", createAccountDtoRq);
-        return cryptoService.createCryptoWallet(createAccountDtoRq);
+    public ResponseEntity<?> createAccount(@RequestBody CreateAccountDtoRq createAccountDtoRq) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(cryptoService.createCryptoWallet(createAccountDtoRq));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @GetMapping
     public List<AccountDtoRs> getAccounts(@RequestParam String username) {
-        log.info("username input: {}", username);
         return cryptoService.findAllAccounts(username);
     }
 
     @PostMapping("/refill")
     private void refill(@RequestBody CryptoWalletDto cryptoWalletDto) {
-        log.info("refill input: {}", cryptoWalletDto);
         cryptoService.refill(cryptoWalletDto.getUuid(), cryptoWalletDto.getAmountRub());
     }
 
     @PostMapping("/withdrawal")
     private CryptoMessage withdrawal(@RequestBody CryptoWalletDto cryptoWalletDto) {
-        log.info("withdrawal input: {}", cryptoWalletDto);
         return cryptoService.withdrawal(cryptoWalletDto.getUuid(), cryptoWalletDto.getAmountRub());
     }
 
     @GetMapping("/balance/{id}")
     public BigDecimal getAccountBalanceInRub(@PathVariable UUID id) {
-        log.info("getBalanceInRub input: {}", id);
         return cryptoService.getBalanceInRub(id).orElseThrow();
     }
 
     @GetMapping("/balance")
     public BigDecimal getAllAccountsBalanceInRub(@RequestParam String username) {
-        log.info("getAllAccountsBalanceInRub input: {}", username);
         return cryptoService.getAllCryptoWalletBalanceInRub(username);
     }
 }

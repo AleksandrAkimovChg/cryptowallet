@@ -19,11 +19,11 @@ public class AccountRepository {
         accountStorage.saveAccount(account);
     }
     public Optional<Account> getAccountByUuid(UUID uuid) {
-        return Optional.ofNullable(accountStorage.getAccountData().get(uuid));
+        return Optional.ofNullable(accountStorage.getAccountData(uuid));
     }
 
-    public List<Account> getAccountsByLogin(String login) {
+    public List<Account> getAllAccountsByLogin(String login) {
         return accountStorage.getAccountData().values().stream()
-                .filter(e -> Objects.equals(login, e.getLogin())).toList();
+                .filter(account -> Objects.equals(login, account.getLogin())).toList();
     }
 }

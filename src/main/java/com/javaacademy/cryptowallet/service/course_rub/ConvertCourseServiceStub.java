@@ -1,4 +1,4 @@
-package com.javaacademy.cryptowallet.service.course_service;
+package com.javaacademy.cryptowallet.service.course_rub;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

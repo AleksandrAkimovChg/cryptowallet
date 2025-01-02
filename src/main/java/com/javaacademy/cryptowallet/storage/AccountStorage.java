@@ -18,6 +18,10 @@ public class AccountStorage {
         accountData.put(account.getUuid(), account);
     }
 
+    public Account getAccountData(UUID uuid) {
+        return accountData.get(uuid);
+    }
+
     public Map<UUID, Account> getAccountData() {
         return new HashMap<>(accountData);
     }

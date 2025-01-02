@@ -12,11 +12,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Account {
     private String login;
-    private CryptoCoin coin;
+    private CryptoCoinType coin;
     private BigDecimal balance;
     private UUID uuid;
 
-    public Account(String login, CryptoCoin coin) {
+    public Account(String login, CryptoCoinType coin) {
         this.login = login;
         this.coin = coin;
         this.balance = BigDecimal.ZERO;

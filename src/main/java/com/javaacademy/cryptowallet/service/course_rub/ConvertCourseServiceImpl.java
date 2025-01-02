@@ -1,7 +1,7 @@
-package com.javaacademy.cryptowallet.service.course_service;
+package com.javaacademy.cryptowallet.service.course_rub;
 
 import com.javaacademy.cryptowallet.http_client.OkClient;
-import com.javaacademy.cryptowallet.parser.CryptoParser;
+import com.jayway.jsonpath.JsonPath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
@@ -21,7 +21,6 @@ import java.util.Optional;
 @Profile("prod")
 public class ConvertCourseServiceImpl implements ConvertCourseService {
     private final OkClient client;
-    private final CryptoParser cryptoParser;
     @Value("${app.course.api}")
     private String urlPath;
     private static final String JSON_PATH_TEMPLATE_FOR_USD = "$.rates.USD";
@@ -45,8 +44,8 @@ public class ConvertCourseServiceImpl implements ConvertCourseService {
     private Optional<BigDecimal> getCourseRubToUsd() {
         String responseBody = getCourseForRub().orElse(null);
         log.info("получение курса доллара на 1 рубль - парсинг строки {}", responseBody);
-        return responseBody != null
-                ? cryptoParser.parseValueByTemplate(responseBody, JSON_PATH_TEMPLATE_FOR_USD) : Optional.empty();
+        return Optional.of(JsonPath.parse(responseBody)
+                .read(JsonPath.compile(JSON_PATH_TEMPLATE_FOR_USD), BigDecimal.class));
     }
 
     private Optional<String> getCourseForRub() {

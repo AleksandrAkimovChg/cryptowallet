@@ -2,6 +2,8 @@ package com.javaacademy.cryptowallet.service;
 
 import com.javaacademy.cryptowallet.dto.ResetPasswordDtoRq;
 import com.javaacademy.cryptowallet.dto.UserDtoRq;
+import com.javaacademy.cryptowallet.exception.PasswordDoesNotMatchException;
+import com.javaacademy.cryptowallet.exception.UserNotFoundException;
 import com.javaacademy.cryptowallet.mapper.CryptoMapper;
 import com.javaacademy.cryptowallet.model.user.User;
 import com.javaacademy.cryptowallet.repository.UserRepository;
@@ -23,13 +25,13 @@ public class UserService {
     }
 
     public User getUserByLogin(String userLogin) {
-        return userRepository.getUser(userLogin).orElseThrow(() -> new RuntimeException("Юзер не найден"));
+        return userRepository.getUser(userLogin).orElseThrow(() -> new UserNotFoundException("Юзер не найден"));
     }
 
     public void changePassword(ResetPasswordDtoRq resetPasswordDto) {
         User user = getUserByLogin(resetPasswordDto.getLogin());
         if (!Objects.equals(resetPasswordDto.getOldPassword(), user.getPassword())) {
-            throw new RuntimeException("Пароль не совпадает");
+            throw new PasswordDoesNotMatchException("Пароль не совпадает");
         }
         user.setPassword(resetPasswordDto.getNewPassword());
     }

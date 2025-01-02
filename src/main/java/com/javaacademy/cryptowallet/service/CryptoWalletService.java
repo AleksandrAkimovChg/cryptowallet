@@ -2,13 +2,14 @@ package com.javaacademy.cryptowallet.service;
 
 import com.javaacademy.cryptowallet.dto.AccountDtoRs;
 import com.javaacademy.cryptowallet.dto.CreateAccountDtoRq;
+import com.javaacademy.cryptowallet.exception.AccountNotFoundException;
 import com.javaacademy.cryptowallet.mapper.CryptoMapper;
 import com.javaacademy.cryptowallet.model.account.Account;
-import com.javaacademy.cryptowallet.model.account.CryptoCoin;
+import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
 import com.javaacademy.cryptowallet.model.user.User;
 import com.javaacademy.cryptowallet.repository.AccountRepository;
-import com.javaacademy.cryptowallet.service.coin_price_service.CoinPriceService;
-import com.javaacademy.cryptowallet.service.course_service.ConvertCourseService;
+import com.javaacademy.cryptowallet.service.coin_price.CoinPriceService;
+import com.javaacademy.cryptowallet.service.course_rub.ConvertCourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CryptowalletService {
+public class CryptoWalletService {
     private final AccountRepository accountRepository;
     private final CryptoMapper mapper;
     private final CoinPriceService coinPriceService;
@@ -30,18 +31,19 @@ public class CryptowalletService {
     private static final int SCALE_FOR_DIVIDE = 5;
     private static final String OPERATION_TEMPLATE = "Операция прошла успешно. Продано: %s %s.";
 
-    public Account findAccountUuid(UUID uuid) {
-        return accountRepository.getAccountByUuid(uuid).orElseThrow(() -> new RuntimeException("Счет не найден"));
-    }
-
-    private List<Account> getAllUserAccounts(User user) {
-        String login = user.getLogin();
-        return accountRepository.getAccountsByLogin(login);
+    public Account findAccountByUuid(UUID uuid) {
+        return accountRepository.getAccountByUuid(uuid)
+                .orElseThrow(() -> new AccountNotFoundException("Счет не найден"));
     }
 
     public List<AccountDtoRs> findAllAccounts(String login) {
         User user = userService.getUserByLogin(login);
-        return getAllUserAccounts(user).stream().map(mapper::converToAccountDtoRs).toList();
+        return findAllAccounts(user).stream().map(mapper::converToAccountDtoRs).toList();
+    }
+
+    private List<Account> findAllAccounts(User user) {
+        String login = user.getLogin();
+        return accountRepository.getAllAccountsByLogin(login);
     }
 
     public UUID createCryptoWallet(CreateAccountDtoRq request) {
@@ -53,7 +55,7 @@ public class CryptowalletService {
     }
 
     private Optional<BigDecimal> amountForRubOperation(Account wallet, BigDecimal amountRub) {
-        CryptoCoin coin = wallet.getCoin();
+        CryptoCoinType coin = wallet.getCoin();
         BigDecimal coinPriceInUsd = coinPriceService.getCoinPriceInUsd(coin).orElse(null);
         BigDecimal convertedRubToUsd = convertCourseService.convertRubToUsd(amountRub).orElse(null);
         if (coinPriceInUsd != null && convertedRubToUsd != null) {
@@ -63,13 +65,13 @@ public class CryptowalletService {
     }
 
     public void refill(UUID uuid, BigDecimal amountRub) {
-        Account wallet = findAccountUuid(uuid);
+        Account wallet = findAccountByUuid(uuid);
         BigDecimal refillAmount = amountForRubOperation(wallet, amountRub).orElseThrow();
         wallet.setBalance(wallet.getBalance().add(refillAmount));
     }
 
     public CryptoMessage withdrawal(UUID uuid, BigDecimal amountRub) {
-        Account wallet = findAccountUuid(uuid);
+        Account wallet = findAccountByUuid(uuid);
         BigDecimal withdrawalAmount = amountForRubOperation(wallet, amountRub).orElse(null);
         if (withdrawalAmount != null && wallet.getBalance().compareTo(withdrawalAmount) < 0) {
             throw new RuntimeException("Нет столько криптовалюты");
@@ -82,8 +84,8 @@ public class CryptowalletService {
     }
 
     public Optional<BigDecimal> getBalanceInRub(UUID uuid) {
-        Account wallet = findAccountUuid(uuid);
-        CryptoCoin coin = wallet.getCoin();
+        Account wallet = findAccountByUuid(uuid);
+        CryptoCoinType coin = wallet.getCoin();
         BigDecimal balance = wallet.getBalance();
         BigDecimal coinPriceInUsd = coinPriceService.getCoinPriceInUsd(coin).orElse(null);
         if (coinPriceInUsd != null) {
@@ -95,7 +97,7 @@ public class CryptowalletService {
 
     public BigDecimal getAllCryptoWalletBalanceInRub(String login) {
         User user = userService.getUserByLogin(login);
-        return getAllUserAccounts(user).stream().map(e -> getBalanceInRub(e.getUuid()).orElse(null))
+        return findAllAccounts(user).stream().map(e -> getBalanceInRub(e.getUuid()).orElse(null))
                 .filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

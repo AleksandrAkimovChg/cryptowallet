@@ -3,6 +3,7 @@ package com.javaacademy.cryptowallet.logging;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -25,8 +26,13 @@ public class LoggingAspect {
     }
 
     @AfterReturning(pointcut = "logServiceCalls()", returning = "result")
-    public void loggingBefore(JoinPoint joinPoint, Object result) {
+    public void loggingAfterReturning(JoinPoint joinPoint, Object result) {
         log.debug("После вызова {} результат: {}", joinPoint.getSignature(),
                 result == null ? "void метод" : result.toString());
+    }
+
+    @AfterThrowing(pointcut = "logServiceCalls()", throwing = "ex")
+    public void loggingAfterThrowing(JoinPoint joinPoint, Exception ex) {
+        log.debug("Выброс исключения: {} - в методе: {}", ex.toString(), joinPoint.getSignature());
     }
 }
