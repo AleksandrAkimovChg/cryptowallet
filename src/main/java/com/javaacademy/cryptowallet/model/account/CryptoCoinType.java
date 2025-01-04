@@ -6,9 +6,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum CryptoCoinType {
-    BTC("bitcoin"),
-    ETH("ethereum"),
-    SOL("solana");
+    BTC("bitcoin", 8),
+    ETH("ethereum", 18),
+    SOL("solana", 9);
 
     private final String name;
+    private final Integer divideScale;
+
 }

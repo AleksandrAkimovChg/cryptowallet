@@ -14,6 +14,6 @@ public class CryptoMapper {
     }
 
     public AccountDtoRs converToAccountDtoRs(Account account) {
-        return new AccountDtoRs(account.getLogin(), account.getCoin(), account.getBalance(), account.getUuid());
+        return new AccountDtoRs(account.getCoin(), account.getBalance(), account.getUuid());
     }
 }
