@@ -94,6 +94,7 @@ public class UserControllerTest {
         User user = saveUser(createUserDtoRq());
         ResetPasswordDtoRq resetPasswordDtoRq = createResetPasswordDtoRq();
         assertEquals(user.getPassword(), resetPasswordDtoRq.getOldPassword());
+        assertNotEquals(user.getPassword(), resetPasswordDtoRq.getNewPassword());
 
         RestAssured.given(requestSpecification)
                 .body(resetPasswordDtoRq)
@@ -105,7 +106,6 @@ public class UserControllerTest {
 
         assertEquals(user.getLogin(), userActual.getLogin());
         assertEquals(user.getEmail(), userActual.getEmail());
-        assertNotEquals(user.getPassword(), userActual.getPassword());
         assertEquals(resetPasswordDtoRq.getNewPassword(), userActual.getPassword());
     }
 
