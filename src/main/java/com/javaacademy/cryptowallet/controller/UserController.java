@@ -32,10 +32,8 @@ public class UserController {
                     + "передав в теле запроса атрибуты сущности пользователя")
     @ApiResponse(
             responseCode = "201",
-            description = "Успешное создание криптовалютного кошелька",
-            content = {
-                    @Content(schema = @Schema())
-            }
+            description = "Успешное создание пользователя",
+            content = {@Content(schema = @Schema())}
     )
     @ApiResponse(
             responseCode = "400",
@@ -61,9 +59,7 @@ public class UserController {
     @ApiResponse(
             responseCode = "200",
             description = "Успешная смена пароля",
-            content = {
-                    @Content(schema = @Schema())
-            }
+            content = {@Content(schema = @Schema())}
     )
     @ApiResponse(
             responseCode = "400",

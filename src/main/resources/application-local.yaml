@@ -1,0 +1,8 @@
+server:
+  port: 8080
+
+app:
+  stub:
+    course:
+      coin-usd: 10000
+      usd-rub: 100

@@ -7,7 +7,7 @@ import lombok.NonNull;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Schema(description = "Атрибуты для создания пользователя")
+@Schema(description = "Атрибуты запроса для создания пользователя")
 public class UserDtoRq {
     @Schema(description = "Логин пользователя", defaultValue = "test123")
     @NonNull

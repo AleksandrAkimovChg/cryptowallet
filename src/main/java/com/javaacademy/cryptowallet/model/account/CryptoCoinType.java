@@ -11,6 +11,6 @@ public enum CryptoCoinType {
     SOL("solana", 9);
 
     private final String name;
-    private final Integer divideScale;
+    private final Integer decimalScale;
 
 }

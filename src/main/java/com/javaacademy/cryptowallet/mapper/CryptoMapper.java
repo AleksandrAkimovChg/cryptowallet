@@ -6,6 +6,8 @@ import com.javaacademy.cryptowallet.model.account.Account;
 import com.javaacademy.cryptowallet.model.user.User;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class CryptoMapper {
 
@@ -14,6 +16,9 @@ public class CryptoMapper {
     }
 
     public AccountDtoRs converToAccountDtoRs(Account account) {
-        return new AccountDtoRs(account.getCoin(), account.getBalance(), account.getUuid());
+        return new AccountDtoRs(
+                account.getCoin(),
+                account.getBalance().compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : account.getBalance(),
+                account.getUuid());
     }
 }

@@ -1,6 +1,5 @@
 package com.javaacademy.cryptowallet.storage;
 
-import com.javaacademy.cryptowallet.exception.UserWithLoginAlreadyExistsException;
 import com.javaacademy.cryptowallet.model.user.User;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +11,6 @@ public class UserStorage {
     private final Map<String, User> userData = new HashMap<>();
 
     public void saveUser(User user) {
-        if (userData.containsKey(user.getLogin())) {
-            throw new UserWithLoginAlreadyExistsException("Пользователь с таким логином уже существует");
-        }
         userData.put(user.getLogin(), user);
     }
 

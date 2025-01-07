@@ -1,6 +1,7 @@
-package com.javaacademy.cryptowallet.service.integration.coin_price;
+package com.javaacademy.cryptowallet.service.coin_price;
 
 import com.javaacademy.cryptowallet.exception.CoinPriceServiceNotAvailableException;
+import com.javaacademy.cryptowallet.exception.CourseRubServiceNotAvailableException;
 import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
 import com.jayway.jsonpath.JsonPath;
 import lombok.Cleanup;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @Service
@@ -35,21 +37,41 @@ public class CoinPriceServiceImpl implements CoinPriceService {
 
     @Override
     public BigDecimal getCoinPriceInUsd(CryptoCoinType coin) {
-        String urlPath = urlPathTemplateForUsdCoinCourse.formatted(api, coin.getName());
-        Request request = new Request.Builder().get().url(urlPath).build();
+        String urlPath = getUrlPath(coin);
+        Request request = getGetRequest(urlPath);
         log.debug("Создан request {}", request);
-//        Request request = client.getGetRequest(urlPath, header, token);
         try {
-            @Cleanup Response response = okHttpClient.newCall(request).execute();
-            if (!response.isSuccessful() || response.body() == null) {
-                throw new CoinPriceServiceNotAvailableException(RESPONSE_NOT_SUCCESS);
-            }
-            String responseBody = response.body().string();
+            @Cleanup Response response = sendRequest(request);
+            String responseBody = getResponseBody(response);
             log.debug("Получен responseBody {}", responseBody);
             String template = jsonPathTemplateForUsd.formatted(coin.getName());
-            return JsonPath.parse(responseBody).read(JsonPath.compile(template), BigDecimal.class);
+            return getCourseByJsonPath(responseBody, template);
         } catch (Exception ex) {
            throw new CoinPriceServiceNotAvailableException(ex);
         }
+    }
+
+    private String getUrlPath(CryptoCoinType coin) {
+        return urlPathTemplateForUsdCoinCourse.formatted(api, coin.getName());
+    }
+
+    private Request getGetRequest(String urlPath) {
+        return new Request.Builder().addHeader(header, token).get().url(urlPath).build();
+    }
+
+    private Response sendRequest(Request request) throws IOException {
+        return okHttpClient.newCall(request).execute();
+    }
+
+    private String getResponseBody(Response response) throws IOException {
+        if (!response.isSuccessful() || response.body() == null) {
+            throw new CourseRubServiceNotAvailableException(RESPONSE_NOT_SUCCESS);
+        }
+        return response.body().string();
+    }
+
+    private BigDecimal getCourseByJsonPath(String responseBody, String template) {
+        return JsonPath.parse(responseBody)
+                .read(JsonPath.compile(template), BigDecimal.class);
     }
 }

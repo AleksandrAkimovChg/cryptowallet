@@ -1,4 +1,4 @@
-package com.javaacademy.cryptowallet.service.integration.coin_price;
+package com.javaacademy.cryptowallet.service.coin_price;
 
 import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
 import org.springframework.beans.factory.annotation.Value;

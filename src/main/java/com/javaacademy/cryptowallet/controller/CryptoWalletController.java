@@ -4,6 +4,7 @@ import com.javaacademy.cryptowallet.dto.AccountDtoRs;
 import com.javaacademy.cryptowallet.dto.CreateAccountDtoRq;
 import com.javaacademy.cryptowallet.dto.CryptoWalletDtoRq;
 import com.javaacademy.cryptowallet.exception.AccountNotFoundException;
+import com.javaacademy.cryptowallet.exception.CoinUnsupportedException;
 import com.javaacademy.cryptowallet.exception.LowBalanceException;
 import com.javaacademy.cryptowallet.exception.UserNotFoundException;
 import com.javaacademy.cryptowallet.model.account.CryptoCoinType;
@@ -43,6 +44,9 @@ public class CryptoWalletController {
     public static final String BALANCE_UNAVAILABLE = "Баланс временно не доступно. Попробуйте позднее";
     public static final String WITHDRAWAL_UNAVAILABLE = "Снятие временно не доступно. Попробуйте позднее";
     public static final String REFILL_UNAVAILABLE = "Пополнение временно не доступно. Попробуйте позднее";
+    public static final String CRYPTO_COIN_NOT_ACCEPTED = "Передан неподдерживаемый тип валюты. Доступны:";
+    public static final String NO_ACCOUNTS = "Нет счетов";
+    public static final String REFILL_SUCCESS = "Пополнение успешно";
     private final CryptoWalletService cryptoService;
 
     @Operation(summary = "Создание криптовалютного кошелька в системе",
@@ -70,7 +74,7 @@ public class CryptoWalletController {
     @PostMapping
     public ResponseEntity<?> createAccount(@RequestBody CreateAccountDtoRq createAccountDtoRq) {
         try {
-            CryptoCoinType cryptoCoinType = cryptoService.checkCryptoCoinType(createAccountDtoRq);
+            CryptoCoinType cryptoCoinType = checkCryptoCoinType(createAccountDtoRq);
             UUID uuid = cryptoService.createCryptoWallet(createAccountDtoRq.getUsername(), cryptoCoinType);
             return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
         } catch (Exception ex) {
@@ -110,11 +114,11 @@ public class CryptoWalletController {
     @GetMapping
     public ResponseEntity<?> getAccounts(
             @Parameter(description = "Логин пользователя", required = true)
-            @RequestParam String username) {
+            @RequestParam("username") String userName) {
         try {
-            List<AccountDtoRs> allAccounts = cryptoService.findAllAccounts(username);
+            List<AccountDtoRs> allAccounts = cryptoService.findAllAccounts(userName);
             if (allAccounts.isEmpty()) {
-                return ResponseEntity.ok().body("Нет счетов");
+                return ResponseEntity.ok().body(NO_ACCOUNTS);
             }
             return ResponseEntity.ok(allAccounts);
         } catch (Exception ex) {
@@ -160,7 +164,7 @@ public class CryptoWalletController {
     public ResponseEntity<String> refill(@RequestBody CryptoWalletDtoRq cryptoWalletDto) {
         try {
             cryptoService.refill(cryptoWalletDto.getUuid(), cryptoWalletDto.getAmountRub());
-            return ResponseEntity.ok("Пополнение успешно");
+            return ResponseEntity.ok(REFILL_SUCCESS);
         } catch (AccountNotFoundException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception ex) {
@@ -223,7 +227,7 @@ public class CryptoWalletController {
             content = {
                     @Content(
                             mediaType = MediaType.TEXT_PLAIN_VALUE,
-                            schema = @Schema(implementation = BigDecimal.class))
+                            schema = @Schema(implementation = String.class))
             }
     )
     @ApiResponse(
@@ -299,13 +303,22 @@ public class CryptoWalletController {
     @GetMapping("/balance")
     public ResponseEntity<?> getAllAccountsBalanceInRub(
             @Parameter(description = "Login пользователя", required = true)
-            @RequestParam String username) {
+            @RequestParam("username") String userName) {
         try {
-            return ResponseEntity.ok(cryptoService.getAllCryptoWalletBalanceInRub(username));
+            return ResponseEntity.ok(cryptoService.getAllCryptoWalletBalanceInRub(userName));
         } catch (UserNotFoundException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(BALANCE_UNAVAILABLE);
+        }
+    }
+
+    private CryptoCoinType checkCryptoCoinType(CreateAccountDtoRq createAccountDtoRq) {
+        try {
+            return CryptoCoinType.valueOf(createAccountDtoRq.getCryptoType());
+        } catch (IllegalArgumentException ex) {
+            log.info(ex.getMessage(), ex);
+            throw new CoinUnsupportedException(CRYPTO_COIN_NOT_ACCEPTED);
         }
     }
 }

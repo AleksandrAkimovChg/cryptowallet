@@ -1,5 +1,6 @@
 package com.javaacademy.cryptowallet.repository;
 
+import com.javaacademy.cryptowallet.exception.AccountAlreadyExistException;
 import com.javaacademy.cryptowallet.model.account.Account;
 import com.javaacademy.cryptowallet.storage.AccountStorage;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,13 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class AccountRepository {
+    public static final String ACCOUNT_ALREADY_EXIST = "Криптовалютный кошелек с таким uuid уже существует";
     private final AccountStorage accountStorage;
 
     public void saveAccount(Account account) {
+        if (getAccountByUuid(account.getUuid()).isPresent()) {
+            throw new AccountAlreadyExistException(ACCOUNT_ALREADY_EXIST);
+        }
         accountStorage.saveAccount(account);
     }
     public Optional<Account> getAccountByUuid(UUID uuid) {
