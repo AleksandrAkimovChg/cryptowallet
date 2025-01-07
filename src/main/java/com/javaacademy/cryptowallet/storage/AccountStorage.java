@@ -12,10 +12,11 @@ public class AccountStorage {
     private final Map<UUID, Account> accountData = new HashMap<>();
 
     public void saveAccount(Account account) {
-        if (accountData.containsKey(account.getUuid())) {
-            throw new RuntimeException("Такой криптокошелек уже существует");
-        }
         accountData.put(account.getUuid(), account);
+    }
+
+    public Account getAccountData(UUID uuid) {
+        return accountData.get(uuid);
     }
 
     public Map<UUID, Account> getAccountData() {

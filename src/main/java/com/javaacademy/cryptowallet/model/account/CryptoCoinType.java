@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CryptoCoin {
-    BTC("bitcoin"),
-    ETH("ethereum"),
-    SOL("solana");
+public enum CryptoCoinType {
+    BTC("bitcoin", 8),
+    ETH("ethereum", 18),
+    SOL("solana", 9);
 
     private final String name;
+    private final Integer decimalScale;
+
 }

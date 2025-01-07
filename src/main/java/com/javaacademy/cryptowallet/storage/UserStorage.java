@@ -11,9 +11,6 @@ public class UserStorage {
     private final Map<String, User> userData = new HashMap<>();
 
     public void saveUser(User user) {
-        if (userData.containsKey(user.getLogin())) {
-            throw new RuntimeException("Пользователь с таким логином уже существует");
-        }
         userData.put(user.getLogin(), user);
     }
 
