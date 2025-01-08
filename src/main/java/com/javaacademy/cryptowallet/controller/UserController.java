@@ -2,6 +2,7 @@ package com.javaacademy.cryptowallet.controller;
 
 import com.javaacademy.cryptowallet.dto.ResetPasswordDtoRq;
 import com.javaacademy.cryptowallet.dto.UserDtoRq;
+import com.javaacademy.cryptowallet.exception.UserNotFoundException;
 import com.javaacademy.cryptowallet.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -63,7 +64,15 @@ public class UserController {
     )
     @ApiResponse(
             responseCode = "400",
-            description = "Неуспешная смена пароля пользователя (Пользователь не найден / пароль не совпадает)",
+            description = "Неуспешная смена пароля пользователя (Пароль не совпадает)",
+            content = {
+                    @Content(mediaType = MediaType.TEXT_PLAIN_VALUE,
+                            schema = @Schema(implementation = String.class))
+            }
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Неуспешная смена пароля пользователя (Пользователь не найден)",
             content = {
                     @Content(mediaType = MediaType.TEXT_PLAIN_VALUE,
                             schema = @Schema(implementation = String.class))
@@ -74,6 +83,8 @@ public class UserController {
         try {
             userService.changePassword(resetPasswordDto);
             return ResponseEntity.ok().build();
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

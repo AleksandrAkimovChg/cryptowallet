@@ -11,7 +11,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class UserRepository {
-    public static final String USER_ALREADY_EXIST = "Пользователь с таким логином уже существует";
+    public static final String USER_ALREADY_EXIST = "Пользователь с логином \"%s\" уже существует";
     private final UserStorage userStorage;
 
     public Optional<User> getUser(String userLogin) {
@@ -20,7 +20,7 @@ public class UserRepository {
 
     public void saveUser(User user) {
         if (getUser(user.getLogin()).isPresent()) {
-            throw new UserWithLoginAlreadyExistsException(USER_ALREADY_EXIST);
+            throw new UserWithLoginAlreadyExistsException(USER_ALREADY_EXIST.formatted(user.getLogin()));
         }
         userStorage.saveUser(user);
     }

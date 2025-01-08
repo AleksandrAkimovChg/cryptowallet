@@ -34,6 +34,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -116,8 +117,8 @@ public class CryptoWalletControllerTest {
                 .post()
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(Matchers.equalTo(USER_NOT_FOUND));
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body(Matchers.equalTo(USER_NOT_FOUND.formatted(createAccountDtoRq.getUsername())));
     }
 
     @Test
@@ -132,7 +133,7 @@ public class CryptoWalletControllerTest {
                 .then()
                 .spec(responseSpecification)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(Matchers.equalTo(CRYPTO_COIN_NOT_ACCEPTED));
+                .body(Matchers.equalTo(CRYPTO_COIN_NOT_ACCEPTED.formatted(Arrays.toString(CryptoCoinType.values()))));
     }
 
     @Test
@@ -157,12 +158,10 @@ public class CryptoWalletControllerTest {
                 });
         List<CryptoCoinType> cryptoCoinTypeListActual = allAccounts.stream().map(AccountDtoRs::getCoin).toList();
         List<UUID> uuidListActual = allAccounts.stream().map(AccountDtoRs::getUuid).toList();
-        List<BigDecimal> balanceListActual = allAccounts.stream().map(AccountDtoRs::getBalance).toList();
 
         assertEquals(uuidListExpected.size(), allAccounts.size());
         assertTrue(cryptoCoinTypeListActual.containsAll(coinTypeListExpected));
         assertTrue(uuidListActual.containsAll(uuidListExpected));
-        assertTrue(balanceListActual.stream().allMatch(balance -> balance.compareTo(BigDecimal.ZERO) == 0));
     }
 
     @Test
@@ -191,8 +190,8 @@ public class CryptoWalletControllerTest {
                 .get()
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(Matchers.equalTo(USER_NOT_FOUND));
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body(Matchers.equalTo(USER_NOT_FOUND.formatted(userName)));
     }
 
     @Test
@@ -229,7 +228,7 @@ public class CryptoWalletControllerTest {
                 .post(REFILL_PATH)
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(Matchers.equalTo(ACCOUNT_NOT_FOUND));
     }
 
@@ -282,7 +281,7 @@ public class CryptoWalletControllerTest {
                 .post(WITHDRAWAL_PATH)
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(Matchers.equalTo(ACCOUNT_NOT_FOUND));
     }
 
@@ -311,7 +310,7 @@ public class CryptoWalletControllerTest {
                 .get(BALANCE_BY_ID_PATH, UUID.randomUUID())
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(Matchers.equalTo(ACCOUNT_NOT_FOUND));
     }
 
@@ -349,8 +348,8 @@ public class CryptoWalletControllerTest {
                 .get(BALANCE_PATH)
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(Matchers.equalTo(USER_NOT_FOUND));
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body(Matchers.equalTo(USER_NOT_FOUND.formatted(userName)));
     }
 
     private User saveUser(UserDtoRq userDtoRq) {

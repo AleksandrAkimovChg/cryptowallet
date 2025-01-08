@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +45,7 @@ public class CryptoWalletController {
     public static final String BALANCE_UNAVAILABLE = "Баланс временно не доступно. Попробуйте позднее";
     public static final String WITHDRAWAL_UNAVAILABLE = "Снятие временно не доступно. Попробуйте позднее";
     public static final String REFILL_UNAVAILABLE = "Пополнение временно не доступно. Попробуйте позднее";
-    public static final String CRYPTO_COIN_NOT_ACCEPTED = "Передан неподдерживаемый тип валюты. Доступны:";
+    public static final String CRYPTO_COIN_NOT_ACCEPTED = "Передан неподдерживаемый тип валюты. Доступны значения: %s";
     public static final String NO_ACCOUNTS = "Нет счетов";
     public static final String REFILL_SUCCESS = "Пополнение успешно";
     private final CryptoWalletService cryptoService;
@@ -63,8 +64,16 @@ public class CryptoWalletController {
     )
     @ApiResponse(
             responseCode = "400",
-            description = "Неуспешное создание криптовалютного кошелька (Пользователь с таким логином "
-                    + "отсутствует / Выбран неподдерживаемый вид валюты)",
+            description = "Неуспешное создание криптовалютного кошелька (Выбран неподдерживаемый вид валюты)",
+            content = {
+                    @Content(
+                            mediaType = MediaType.TEXT_PLAIN_VALUE,
+                            schema = @Schema(implementation = String.class))
+            }
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Неуспешное создание криптовалютного кошелька (Пользователь с таким логином отсутствует)",
             content = {
                     @Content(
                             mediaType = MediaType.TEXT_PLAIN_VALUE,
@@ -77,6 +86,8 @@ public class CryptoWalletController {
             CryptoCoinType cryptoCoinType = checkCryptoCoinType(createAccountDtoRq);
             UUID uuid = cryptoService.createCryptoWallet(createAccountDtoRq.getUsername(), cryptoCoinType);
             return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
@@ -102,7 +113,7 @@ public class CryptoWalletController {
             }
     )
     @ApiResponse(
-            responseCode = "400",
+            responseCode = "404",
             description = "Неуспешное получение информации о криптовалютных кошельках пользователя "
                     + "(Пользователь с таким логином отсутствует)",
             content = {
@@ -121,8 +132,8 @@ public class CryptoWalletController {
                 return ResponseEntity.ok().body(NO_ACCOUNTS);
             }
             return ResponseEntity.ok(allAccounts);
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
@@ -138,8 +149,8 @@ public class CryptoWalletController {
             }
     )
     @ApiResponse(
-            responseCode = "400",
-            description = "Неуспешное пополнение криптовалютного кошелька",
+            responseCode = "404",
+            description = "Неуспешное пополнение криптовалютного кошелька (Кошелек не найден)",
             content = {
                     @Content(
                             mediaType = MediaType.TEXT_PLAIN_VALUE,
@@ -166,7 +177,7 @@ public class CryptoWalletController {
             cryptoService.refill(cryptoWalletDto.getUuid(), cryptoWalletDto.getAmountRub());
             return ResponseEntity.ok(REFILL_SUCCESS);
         } catch (AccountNotFoundException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(REFILL_UNAVAILABLE);
         }
@@ -186,7 +197,16 @@ public class CryptoWalletController {
     @ApiResponse(
             responseCode = "400",
             description = "Неуспешное снятие криптовалюты с кошелька "
-                    + "(Кошелек не найден / Недостаточный баланс для операции)",
+                    + "(Недостаточный баланс для операции)",
+            content = {
+                    @Content(
+                            mediaType = MediaType.TEXT_PLAIN_VALUE,
+                            schema = @Schema(implementation = String.class))
+            }
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Неуспешное снятие криптовалюты с кошелька (Кошелек не найден)",
             content = {
                     @Content(
                             mediaType = MediaType.TEXT_PLAIN_VALUE,
@@ -212,8 +232,10 @@ public class CryptoWalletController {
         try {
             return ResponseEntity.ok(
                     cryptoService.withdrawal(cryptoWalletDto.getUuid(), cryptoWalletDto.getAmountRub()));
-        } catch (AccountNotFoundException | LowBalanceException ex) {
+        } catch (LowBalanceException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (AccountNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(WITHDRAWAL_UNAVAILABLE);
         }
@@ -231,7 +253,7 @@ public class CryptoWalletController {
             }
     )
     @ApiResponse(
-            responseCode = "400",
+            responseCode = "404",
             description = "Неуспешное получение рублевого баланса (Кошелек не найден)",
             content = {
                     @Content(
@@ -260,7 +282,7 @@ public class CryptoWalletController {
         try {
             return ResponseEntity.ok(cryptoService.getBalanceInRub(id));
         } catch (AccountNotFoundException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(BALANCE_UNAVAILABLE);
         }
@@ -278,7 +300,7 @@ public class CryptoWalletController {
             }
     )
     @ApiResponse(
-            responseCode = "400",
+            responseCode = "404",
             description = "Неуспешное получение рублевого баланса  (Пользователь не найден)",
             content = {
                     @Content(
@@ -307,7 +329,7 @@ public class CryptoWalletController {
         try {
             return ResponseEntity.ok(cryptoService.getAllCryptoWalletBalanceInRub(userName));
         } catch (UserNotFoundException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(BALANCE_UNAVAILABLE);
         }
@@ -318,7 +340,8 @@ public class CryptoWalletController {
             return CryptoCoinType.valueOf(createAccountDtoRq.getCryptoType());
         } catch (IllegalArgumentException ex) {
             log.info(ex.getMessage(), ex);
-            throw new CoinUnsupportedException(CRYPTO_COIN_NOT_ACCEPTED);
+            throw new CoinUnsupportedException(
+                    CRYPTO_COIN_NOT_ACCEPTED.formatted(Arrays.toString(CryptoCoinType.values())));
         }
     }
 }

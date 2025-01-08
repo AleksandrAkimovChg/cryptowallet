@@ -85,7 +85,7 @@ public class UserControllerTest {
                 .then()
                 .spec(responseSpecification)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(Matchers.equalTo(USER_ALREADY_EXIST));
+                .body(Matchers.equalTo(USER_ALREADY_EXIST.formatted(userDtoRq.getLogin())));
     }
 
     @Test
@@ -120,8 +120,8 @@ public class UserControllerTest {
                 .post(RESET_PASSWORD_PATH)
                 .then()
                 .spec(responseSpecification)
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(Matchers.equalTo(USER_NOT_FOUND));
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body(Matchers.equalTo(USER_NOT_FOUND.formatted(resetPasswordDtoRq.getLogin())));
     }
 
     @Test
