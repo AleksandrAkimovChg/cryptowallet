@@ -18,7 +18,7 @@ import java.util.Objects;
 @Slf4j
 public class UserService {
     public static final String PASSWORD_NOT_EQUALS = "Пароль не совпадает";
-    public static final String USER_NOT_FOUND = "Юзер не найден";
+    public static final String USER_NOT_FOUND = "Юзер c логином \"%s\" не найден";
     private final UserRepository userRepository;
     private final CryptoMapper cryptoMapper;
 
@@ -27,7 +27,8 @@ public class UserService {
     }
 
     public User getUserByLogin(String userLogin) {
-        return userRepository.getUser(userLogin).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+        return userRepository.getUser(userLogin)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND.formatted(userLogin)));
     }
 
     public void changePassword(ResetPasswordDtoRq resetPasswordDto) {
