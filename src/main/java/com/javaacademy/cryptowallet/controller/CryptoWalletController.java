@@ -83,7 +83,7 @@ public class CryptoWalletController {
     @PostMapping
     public ResponseEntity<?> createAccount(@RequestBody CreateAccountDtoRq createAccountDtoRq) {
         try {
-            CryptoCoinType cryptoCoinType = checkCryptoCoinType(createAccountDtoRq);
+            CryptoCoinType cryptoCoinType = getCryptoCoinType(createAccountDtoRq);
             UUID uuid = cryptoService.createCryptoWallet(createAccountDtoRq.getUsername(), cryptoCoinType);
             return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
         } catch (UserNotFoundException ex) {
@@ -335,7 +335,7 @@ public class CryptoWalletController {
         }
     }
 
-    private CryptoCoinType checkCryptoCoinType(CreateAccountDtoRq createAccountDtoRq) {
+    private CryptoCoinType getCryptoCoinType(CreateAccountDtoRq createAccountDtoRq) {
         try {
             return CryptoCoinType.valueOf(createAccountDtoRq.getCryptoType());
         } catch (IllegalArgumentException ex) {

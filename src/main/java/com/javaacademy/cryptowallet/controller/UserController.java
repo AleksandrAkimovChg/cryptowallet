@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @Tag(name = "User controller",
         description = "API для создания пользователя или для смены пароля существующего пользователя")
 @RestController

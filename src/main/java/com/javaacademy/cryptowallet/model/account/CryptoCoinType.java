@@ -12,5 +12,4 @@ public enum CryptoCoinType {
 
     private final String name;
     private final Integer decimalScale;
-
 }

@@ -97,7 +97,6 @@ public class CryptoWalletService {
     private BigDecimal getBalanceInRub(Account account) {
         log.info("Кошелек до операции: {}", account);
         BigDecimal balanceInUsd = getBalanceInUsd(account);
-        BigDecimal balanceInRub = convertCourseService.convertUsdToRub(balanceInUsd);
         return convertCourseService.convertUsdToRub(balanceInUsd);
     }
 
